@@ -15,11 +15,13 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
 
-from xtest.pom.exceptions import (AttributeNotPresentInWebElementError,
-                                  ElementNotDisappearedOnPageError,
-                                  ElementNotPresentOnPageError,
-                                  PageNotLoadedError,
-                                  TextNotPresentInElementError)
+from xtest.pom.exceptions import (
+    AttributeNotPresentInWebElementError,
+    ElementNotDisappearedOnPageError,
+    ElementNotPresentOnPageError,
+    PageNotLoadedError,
+    TextNotPresentInElementError,
+)
 from xtest.pom.locators import AdvancedLocator
 from xtest.pom.predicates import url_matches_without_get_parameters
 from xtest.utils.decorators import wait
@@ -43,9 +45,7 @@ class _BaseActions(ABC):
         parsed_url = urlparse(self.driver.current_url)
         return parse_qs(parsed_url.query)
 
-    def is_stale_of(
-        self, element: WebElement, /, *, timeout: t.Optional[int] = None
-    ) -> bool:
+    def is_stale_of(self, element: WebElement, /, *, timeout: t.Optional[int] = None) -> bool:
         try:
             return self.wait(timeout=timeout).until(ec.staleness_of(element))
         except exceptions.TimeoutException:
@@ -55,9 +55,7 @@ class _BaseActions(ABC):
         self.action_chains.send_keys(Keys.TAB).perform()
         return self
 
-    def click(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> None:
+    def click(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> None:
         wait(
             method=lambda: self.find_visible_element(locator, timeout=1).click(),
             timeout=timeout,
@@ -83,9 +81,7 @@ class _BaseActions(ABC):
                 if element.is_displayed() and element.text.strip() == value:
                     element.click()
                     return
-            raise exceptions.ElementNotVisibleException(
-                f"Элемент отсутствует на странице со значением: {value}"
-            )
+            raise exceptions.ElementNotVisibleException(f"Элемент отсутствует на странице со значением: {value}")
 
         return wait(
             method=wrapper,
@@ -93,9 +89,7 @@ class _BaseActions(ABC):
             timeout=timeout,
         )
 
-    def send_keys(
-        self, locator: AdvancedLocator, send_data: str, /, *, auto_clear: bool = True
-    ) -> None:
+    def send_keys(self, locator: AdvancedLocator, send_data: str, /, *, auto_clear: bool = True) -> None:
         web_element = self.find_visible_element(locator)
         web_element.click()
 
@@ -135,18 +129,14 @@ class _BaseActions(ABC):
     def wait(self, /, *, timeout: t.Optional[int] = None) -> WebDriverWait:
         return WebDriverWait(self.driver, timeout=timeout or 10, poll_frequency=0.001)
 
-    def is_visible_element(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> bool:
+    def is_visible_element(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> bool:
         try:
             self.find_visible_element(locator, timeout=timeout)
             return True
         except (exceptions.ElementNotVisibleException, ElementNotPresentOnPageError):
             return False
 
-    def find_element(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> WebElement:
+    def find_element(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> WebElement:
         try:
             return self.wait(timeout=timeout).until(
                 method=ec.presence_of_element_located(locator),
@@ -155,19 +145,13 @@ class _BaseActions(ABC):
         except exceptions.TimeoutException as ex:
             raise ElementNotPresentOnPageError(locator, timeout=timeout) from ex
 
-    def is_disabled_element(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> bool:
+    def is_disabled_element(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> bool:
         try:
-            return (
-                self.get_attr_from_obj("disabled", locator, timeout=timeout) == "true"
-            )
+            return self.get_attr_from_obj("disabled", locator, timeout=timeout) == "true"
         except exceptions.ElementClickInterceptedException:
             return False
 
-    def find_visible_element(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> WebElement:
+    def find_visible_element(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> WebElement:
         try:
             return self.wait(timeout=timeout).until(
                 method=ec.visibility_of_element_located(locator.as_locator),
@@ -176,15 +160,9 @@ class _BaseActions(ABC):
         except exceptions.TimeoutException as ex:
             raise ElementNotPresentOnPageError(locator, timeout=timeout) from ex
 
-    def find_elements(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> t.List[WebElement]:
+    def find_elements(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> t.List[WebElement]:
         try:
-            return list(
-                self.wait(timeout=timeout).until(
-                    ec.presence_of_all_elements_located(locator)
-                )
-            )
+            return list(self.wait(timeout=timeout).until(ec.presence_of_all_elements_located(locator)))
         except exceptions.TimeoutException:
             return []
 
@@ -199,9 +177,7 @@ class _BaseActions(ABC):
         except exceptions.TimeoutException as ex:
             raise ElementNotPresentOnPageError(locator, timeout=timeout) from ex
 
-    def wait_hide_element(
-        self, locator: AdvancedLocator, /, *, timeout: int = None
-    ) -> WebElement:
+    def wait_hide_element(self, locator: AdvancedLocator, /, *, timeout: int = None) -> WebElement:
         try:
             return self.wait(timeout=timeout).until(
                 method=ec.invisibility_of_element_located(locator.as_locator),
@@ -232,9 +208,7 @@ class _BaseActions(ABC):
             error=(TextNotPresentInElementError, ElementNotPresentOnPageError),
         )
 
-    def wait_text_present(
-        self, locator: AdvancedLocator, text: str, /, *, timeout: int = None
-    ) -> str:
+    def wait_text_present(self, locator: AdvancedLocator, text: str, /, *, timeout: int = None) -> str:
         def wrapper():
             element_text = self.get_text_from_obj(locator, timeout=1)
             if isinstance(element_text, str):
@@ -263,34 +237,20 @@ class _BaseActions(ABC):
                 return True
             return None
 
-        return (
-            wait(wrapper, timeout=timeout, check=True, raise_exception=False) or False
-        )
+        return wait(wrapper, timeout=timeout, check=True, raise_exception=False) or False
 
-    def is_present_text_in_element(
-        self, locator: AdvancedLocator, /, *, timeout: int = None
-    ) -> bool:
-        return self.__is_present_text_in_web_element(
-            locator, self.get_text_from_obj, timeout=timeout
-        )
+    def is_present_text_in_element(self, locator: AdvancedLocator, /, *, timeout: int = None) -> bool:
+        return self.__is_present_text_in_web_element(locator, self.get_text_from_obj, timeout=timeout)
 
-    def is_present_text_in_input(
-        self, locator: AdvancedLocator, /, *, timeout: float = None
-    ) -> bool:
-        return self.__is_present_text_in_web_element(
-            locator, self.get_value_from_obj, timeout=timeout
-        )
+    def is_present_text_in_input(self, locator: AdvancedLocator, /, *, timeout: float = None) -> bool:
+        return self.__is_present_text_in_web_element(locator, self.get_value_from_obj, timeout=timeout)
 
-    def wait_text_change_from(
-        self, locator: AdvancedLocator, text: str, /, *, timeout: int = None
-    ) -> bool:
+    def wait_text_change_from(self, locator: AdvancedLocator, text: str, /, *, timeout: int = None) -> bool:
         def _method():
             _text = self.get_text_from_obj(locator, timeout=1)
             if isinstance(_text, str) and len(_text) > 0 and _text != text:
                 return True
-            raise ElementNotDisappearedOnPageError(
-                locator, reason=f'Текст не сменился с "{text}".'
-            )
+            raise ElementNotDisappearedOnPageError(locator, reason=f'Текст не сменился с "{text}".')
 
         return wait(
             method=_method,
@@ -364,9 +324,7 @@ class _BaseActions(ABC):
                 attribute_value = element.get_attribute(attribute_name)
                 if isinstance(attribute_value, str):
                     return attribute_value
-                raise AttributeNotPresentInWebElementError(
-                    locator, attribute_name, timeout=timeout
-                )
+                raise AttributeNotPresentInWebElementError(locator, attribute_name, timeout=timeout)
             raise ElementNotPresentOnPageError(locator, timeout=timeout)
 
         return wait(
@@ -376,23 +334,14 @@ class _BaseActions(ABC):
             error=(ElementNotPresentOnPageError, AttributeNotPresentInWebElementError),
         )
 
-    def get_link_from_obj(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> t.Optional[str]:
+    def get_link_from_obj(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> t.Optional[str]:
         return self.get_attr_from_obj("href", locator, timeout=timeout)
 
-    def get_value_from_obj(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> t.Optional[str]:
+    def get_value_from_obj(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> t.Optional[str]:
         return self.get_attr_from_obj("value", locator, timeout=timeout)
 
-    def get_values_from_objects(
-        self, locator: AdvancedLocator, /, *, timeout: float = None
-    ) -> list[t.Any]:
-        return [
-            element.get_attribute("value")
-            for element in self.find_visible_elements(locator, timeout=timeout)
-        ]
+    def get_values_from_objects(self, locator: AdvancedLocator, /, *, timeout: float = None) -> list[t.Any]:
+        return [element.get_attribute("value") for element in self.find_visible_elements(locator, timeout=timeout)]
 
     ##################################
     def get_selected_from_obj(
@@ -400,9 +349,7 @@ class _BaseActions(ABC):
     ) -> t.Optional[bool]:
         return bool(
             wait(
-                method=lambda: self.find_visible_element(
-                    locator, timeout=timeout
-                ).is_selected(),
+                method=lambda: self.find_visible_element(locator, timeout=timeout).is_selected(),
                 timeout=timeout,
                 check=True,
             )
@@ -425,45 +372,30 @@ class _BaseActions(ABC):
         timeout: t.Optional[int] = None,
     ) -> list[WebElement]:
         try:
-            return self.wait(timeout=timeout).until(
-                ec.visibility_of_all_elements_located(locator)
-            )
+            return self.wait(timeout=timeout).until(ec.visibility_of_all_elements_located(locator))
         except exceptions.TimeoutException:
             return []
 
-    def is_exists_elements(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> bool:
+    def is_exists_elements(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> bool:
         return len(self.get_visible_elements_by_locator(locator, timeout=timeout)) > 0
 
-    def is_enabled_element(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> bool:
+    def is_enabled_element(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> bool:
         try:
             return self.find_visible_element(locator, timeout=timeout).is_enabled()
         except ElementNotPresentOnPageError:
             return False
 
-    def is_enabled_hidden_element(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> bool:
+    def is_enabled_hidden_element(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> bool:
         try:
             return self.find_element(locator, timeout=timeout).is_enabled()
         except ElementNotPresentOnPageError:
             return False
 
-    def get_count_elements_on_page(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> int:
+    def get_count_elements_on_page(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> int:
         return len(self.find_visible_elements(locator, timeout=timeout))
 
-    def get_texts_by_locator(
-        self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None
-    ) -> t.List[str]:
-        return [
-            element.text
-            for element in self.find_visible_elements(locator, timeout=timeout)
-        ]
+    def get_texts_by_locator(self, locator: AdvancedLocator, /, *, timeout: t.Optional[int] = None) -> t.List[str]:
+        return [element.text for element in self.find_visible_elements(locator, timeout=timeout)]
 
     def get_element_style(
         self,
@@ -473,9 +405,7 @@ class _BaseActions(ABC):
         *,
         timeout: t.Optional[int] = None,
     ) -> t.Optional[str]:
-        return self.find_visible_element(
-            locator, timeout=timeout
-        ).value_of_css_property(css_style)
+        return self.find_visible_element(locator, timeout=timeout).value_of_css_property(css_style)
 
     def is_exists_value_in_html_attribute(
         self, locator: AdvancedLocator, attribute: str, expected_value: str, /
@@ -499,22 +429,15 @@ class _BaseActions(ABC):
     ) -> bool:
         def wrapper() -> bool:
             if is_visibility:
-                elements = self.wait(timeout=1).until(
-                    ec.visibility_of_all_elements_located(locator.as_locator)
-                )
+                elements = self.wait(timeout=1).until(ec.visibility_of_all_elements_located(locator.as_locator))
             else:
-                elements = self.wait(timeout=1).until(
-                    ec.presence_of_all_elements_located(locator.as_locator)
-                )
+                elements = self.wait(timeout=1).until(ec.presence_of_all_elements_located(locator.as_locator))
             if len(elements) == count_elements:
                 return True
             return None
 
         try:
-            return (
-                wait(method=wrapper, check=True, timeout=timeout, raise_exception=False)
-                or False
-            )
+            return wait(method=wrapper, check=True, timeout=timeout, raise_exception=False) or False
         except exceptions.TimeoutException as ex:
             raise ElementNotPresentOnPageError(locator, timeout=timeout) from ex
 
@@ -529,22 +452,15 @@ class _BaseActions(ABC):
     ) -> bool:
         def wrapper() -> bool:
             if is_visibility:
-                elements = self.wait(timeout=1).until(
-                    ec.visibility_of_all_elements_located(locator.as_locator)
-                )
+                elements = self.wait(timeout=1).until(ec.visibility_of_all_elements_located(locator.as_locator))
             else:
-                elements = self.wait(timeout=1).until(
-                    ec.presence_of_all_elements_located(locator.as_locator)
-                )
+                elements = self.wait(timeout=1).until(ec.presence_of_all_elements_located(locator.as_locator))
             if len(elements) >= count_elements:
                 return True
             return None
 
         try:
-            return (
-                wait(method=wrapper, check=True, timeout=timeout, raise_exception=False)
-                or False
-            )
+            return wait(method=wrapper, check=True, timeout=timeout, raise_exception=False) or False
         except exceptions.TimeoutException as ex:
             raise ElementNotPresentOnPageError(locator, timeout=timeout) from ex
 
@@ -564,14 +480,10 @@ class BasePageActions(_BaseActions, ABC):
     get_parameters: t.Optional[dict[str, t.Any]] = None
 
     def __repr__(self) -> str:
-        return (
-            f"<{self.__class__.__name__} с ссылкой '{self.endpoint}' (id={id(self)})'>"
-        )
+        return f"<{self.__class__.__name__} с ссылкой '{self.endpoint}' (id={id(self)})'>"
 
     def __str__(self) -> str:
-        return (
-            f"<{self.__class__.__name__} с ссылкой '{self.endpoint}' (id={id(self)})'>"
-        )
+        return f"<{self.__class__.__name__} с ссылкой '{self.endpoint}' (id={id(self)})'>"
 
     @abc.abstractmethod
     def build_url(self) -> str:
@@ -599,16 +511,14 @@ class BasePageActions(_BaseActions, ABC):
     def open_page(self):
 
         # Открытие страницы по URL.
-        self.driver.get(urljoin(endpoint=self.endpoint, parameters=self.get_parameters))
+        self.driver.get(urljoin(self.build_url(), self.endpoint))
 
         # Обновление страницы (на всякий случай, пусть будет пока что тут)
         self.refresh_page()
 
         # Проверяем, что страница обновилась по паттерну URL.
         if not self.wait_change_url_by_pattern(timeout=35):
-            raise PageNotLoadedError(
-                self.page_name, reason="Не произошел переход по URL"
-            )
+            raise PageNotLoadedError(self.page_name, reason="Не произошел переход по URL")
 
         # Ожидаем загрузку фронта.
         def wait_loading_page():
@@ -653,9 +563,7 @@ class BasePageActions(_BaseActions, ABC):
     def wait_change_url_by_pattern(self, /, *, timeout: int = None) -> bool:
         url_pattern = urljoin(self.build_url(), self.endpoint_pattern.lstrip("/"))
         try:
-            self.wait(timeout=timeout).until(
-                url_matches_without_get_parameters(url_pattern)
-            )
+            self.wait(timeout=timeout).until(url_matches_without_get_parameters(url_pattern))
             return True
         except TimeoutException:
             return False

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import enum
-import uuid
 import typing as t
+import uuid
 
 from pydantic import BaseModel
 

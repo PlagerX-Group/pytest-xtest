@@ -5,7 +5,10 @@ from urllib.parse import parse_qsl, urljoin, urlparse
 from requests.cookies import RequestsCookieJar
 
 from xtest.api import APIClientBase
-from xtest.utils.keycloak.exceptions import KeycloakNotAuthorizationException, KeycloakException
+from xtest.utils.keycloak.exceptions import (
+    KeycloakException,
+    KeycloakNotAuthorizationException,
+)
 from xtest.utils.keycloak.models import KeycloakUserModel
 
 
@@ -154,7 +157,7 @@ class KeycloakClient(APIClientBase):
                     'type': 'password',
                     'value': user.password,
                 }
-            ]
+            ],
         }
         if user.attributes:
             request_body.update({'attributes': user.attributes})
@@ -196,11 +199,7 @@ class KeycloakClient(APIClientBase):
             response = self.request(
                 url=urljoin(self.__target_keycloak_url, f'/auth/admin/realms/{self.__realm}/roles'),
                 method='get',
-                params={
-                    'first': 0,
-                    'max': 20,
-                    'search': role_name
-                },
+                params={'first': 0, 'max': 20, 'search': role_name},
                 headers=self.service_account_authorization_headers,
             )
             response_json = response.json()

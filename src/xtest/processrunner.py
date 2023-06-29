@@ -4,7 +4,6 @@ import types
 
 
 class ProcessRunner:
-
     @property
     def pid(self) -> int:
         return self.__pid

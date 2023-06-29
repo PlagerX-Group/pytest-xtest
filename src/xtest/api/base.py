@@ -2,12 +2,7 @@
 import typing as t
 from urllib.parse import urljoin
 
-from requests import (
-    ConnectionError,
-    HTTPError,
-    Response,
-    Session,
-)
+from requests import ConnectionError, HTTPError, Response, Session
 
 
 def retry_request(func: t.Callable[..., t.Any]) -> t.Callable[..., t.Any]:
