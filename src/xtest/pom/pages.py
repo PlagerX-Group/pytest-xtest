@@ -28,6 +28,8 @@ from xtest.utils.decorators import wait
 
 
 class _BaseActions(ABC):
+    locators = None
+
     def __init__(self, driver: WebDriver, /):
         self.driver = driver
 
@@ -489,9 +491,8 @@ class BasePageActions(_BaseActions, ABC):
     def build_url(self) -> str:
         raise NotImplementedError()
 
-    @abc.abstractmethod
     def post_open_page(self) -> None:
-        raise NotImplementedError()
+        pass
 
     @property
     def browser_url_tabs(self) -> list[str]:
